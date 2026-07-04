@@ -262,6 +262,255 @@ Decoder predicts the next English word
 ```
 
 ---
+# Example: What Does the Attention ANN Learn?
+
+Consider the Telugu sentence:
+
+```
+నేను భారతదేశాన్ని ప్రేమిస్తున్నాను
+```
+
+The Encoder processes the sentence and produces three hidden states.
+
+```
+నేను ------------------> h1
+
+భారతదేశాన్ని -----------> h2
+
+ప్రేమిస్తున్నాను ---------> h3
+```
+
+The Decoder now starts generating the English translation one word at a time.
+
+---
+
+## Decoder wants to predict the first word
+
+The current decoder hidden state is
+
+```
+d1
+```
+
+The Attention ANN receives two inputs:
+
+```
+Encoder Hidden States
+
+h1
+h2
+h3
+
+AND
+
+Current Decoder Hidden State
+
+d1
+```
+
+Initially, the Attention ANN has random weights.
+
+It may produce the following Attention Scores.
+
+```
+h1 -----------> 0.30
+
+h2 -----------> 0.20
+
+h3 -----------> 0.50
+```
+
+After applying Softmax,
+
+```
+Attention Weights
+
+h1 -----------> 0.30
+
+h2 -----------> 0.25
+
+h3 -----------> 0.45
+```
+
+The Context Vector is created using these weights.
+
+The Decoder predicts
+
+```
+India
+```
+
+However, the correct first English word is
+
+```
+I
+```
+
+The prediction is incorrect.
+
+---
+
+## Backpropagation
+
+The loss is calculated.
+
+The gradients flow backward through
+
+```
+Decoder
+
+↓
+
+Attention ANN
+
+↓
+
+Encoder
+```
+
+The Attention ANN updates its weights.
+
+It gradually learns:
+
+> "For predicting the first English word, I should focus more on **h1** instead of **h3**."
+
+---
+
+## After Training
+
+The same sentence now produces
+
+```
+Attention Scores
+
+h1 -----------> 8.5
+
+h2 -----------> 2.1
+
+h3 -----------> 0.4
+```
+
+Softmax converts them into
+
+```
+Attention Weights
+
+h1 -----------> 0.95
+
+h2 -----------> 0.04
+
+h3 -----------> 0.01
+```
+
+The Context Vector is now dominated by **h1**.
+
+The Decoder correctly predicts
+
+```
+I
+```
+
+---
+
+## Decoder predicts the second word
+
+The Decoder hidden state changes.
+
+```
+d2
+```
+
+Again, the Attention ANN compares
+
+```
+d2
+
+with
+
+h1
+h2
+h3
+```
+
+This time it learns
+
+```
+h3 -----------> Highest Attention
+```
+
+because
+
+```
+ప్రేమిస్తున్నాను
+
+↓
+
+love
+```
+
+The Decoder predicts
+
+```
+love
+```
+
+---
+
+## Decoder predicts the third word
+
+The Decoder hidden state becomes
+
+```
+d3
+```
+
+Again, Attention computes new scores.
+
+Now it learns
+
+```
+h2 -----------> Highest Attention
+```
+
+because
+
+```
+భారతదేశాన్ని
+
+↓
+
+India
+```
+
+The Decoder predicts
+
+```
+India
+```
+
+---
+
+# Final Translation
+
+```
+నేను భారతదేశాన్ని ప్రేమిస్తున్నాను
+
+↓
+
+I love India
+```
+
+---
+
+# Key Learning
+
+Notice that the Attention ANN computes **new Attention Scores for every decoder time step.**
+
+It continuously learns:
+
+> **"Which encoder hidden state should I focus on for predicting the current target word?"**
+
+This is why Attention is often described as **"learning where to look."**
 
 # Key Idea
 
