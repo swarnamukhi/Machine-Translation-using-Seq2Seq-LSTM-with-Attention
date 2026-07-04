@@ -267,6 +267,69 @@ The encoder still processes the source sentence.
 Attention simply provides additional information to the decoder.
 
 ---
+---
+
+# Attention vs Bahdanau Attention
+
+Many beginners think **Attention** and **Bahdanau Attention** are different concepts. They are not.
+
+**Attention** is a general mechanism that allows the decoder to focus on the most relevant encoder hidden states while generating each target word.
+
+**Bahdanau Attention** is one specific implementation of the Attention mechanism, proposed by Dzmitry Bahdanau in 2014. It is also called **Additive Attention**.
+
+Later, other attention mechanisms were introduced.
+
+| Attention Type | Description |
+|---------------|-------------|
+| Bahdanau Attention | Additive Attention (used in this project) |
+| Luong Attention | Multiplicative (Dot-Product) Attention |
+| Self-Attention | Used in Transformer models such as BERT and GPT |
+
+In this repository, whenever we refer to **Attention**, we specifically mean **Bahdanau Attention**.
+
+---
+---
+
+# Bahdanau Attention Workflow
+
+```text
+Encoder Hidden States (h1, h2, h3, ..., hT)
+                 │
+                 │
+                 ▼
+Current Decoder Hidden State
+                 │
+                 ▼
+Bahdanau Attention
+      │
+      ├── Compute Attention Scores
+      │
+      ├── Convert Scores → Attention Weights (Softmax)
+      │
+      ├── Compute Weighted Sum of Encoder Outputs
+      │
+      ▼
+Context Vector
+      │
+      ▼
+Context Vector + Decoder Hidden State
+      │
+      ▼
+Decoder predicts the next English word
+```
+
+### Quick Summary
+
+1. Encoder processes the entire Telugu sentence.
+2. Decoder generates one English word at a time.
+3. Before generating each word, Bahdanau Attention compares the current decoder hidden state with all encoder hidden states.
+4. It computes attention scores.
+5. Softmax converts the scores into attention weights.
+6. The attention weights create a Context Vector.
+7. The Context Vector is sent to the decoder.
+8. The decoder predicts the next English word.
+
+---
 
 ## Key Takeaways
 
