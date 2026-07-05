@@ -501,6 +501,229 @@ I love India
 ```
 
 ---
+# Why Does Bahdanau Attention Use Three Dense Layers?
+
+Many beginners wonder why Bahdanau Attention contains exactly **three Dense layers** and whether this number is calculated mathematically.
+
+The answer is **No**.
+
+The three Dense layers are **part of the Bahdanau Attention architecture** proposed in the original research paper.
+
+The Attention ANN receives two inputs:
+
+- Encoder Hidden State (`h_i`)
+- Current Decoder Hidden State (`s_t`)
+
+Its goal is to learn **how relevant each encoder hidden state is for predicting the current target word.**
+
+---
+
+## Dense Layer W1
+
+Processes the Encoder Hidden States.
+
+```
+Encoder Hidden State
+
+↓
+
+Dense(W1)
+
+↓
+
+Learned Representation
+```
+
+---
+
+## Dense Layer W2
+
+Processes the Current Decoder Hidden State.
+
+```
+Decoder Hidden State
+
+↓
+
+Dense(W2)
+
+↓
+
+Learned Representation
+```
+
+---
+
+## Why are W1 and W2 needed?
+
+The encoder and decoder hidden states come from different networks.
+
+Before comparing them, they are projected into the **same feature space** using two separate Dense layers.
+
+After that,
+
+```
+W1(h_i) + W2(s_t)
+```
+
+can be compared meaningfully.
+
+---
+
+## tanh Activation
+
+After adding the two transformed vectors,
+
+```
+W1(h_i) + W2(s_t)
+```
+
+Bahdanau applies
+
+```
+tanh()
+```
+
+### Why?
+
+Without an activation function, the network performs only **linear transformations**.
+
+`tanh()` introduces **non-linearity**, allowing the Attention ANN to learn more complex relationships between:
+
+- Encoder Hidden State
+- Decoder Hidden State
+
+It does **not** compute the attention score.
+
+Its job is simply to create a richer feature representation before the final prediction.
+
+---
+
+## Dense Layer V
+
+Finally,
+
+```
+Dense(1)
+```
+
+produces a **single Attention Score** for every encoder hidden state.
+
+```
+Encoder Hidden State
+
+↓
+
+Score = 0.92
+```
+
+Higher score means
+
+> "Pay more attention to this encoder hidden state."
+
+Later, Softmax converts these scores into Attention Weights.
+
+---
+
+# How are the neurons decided?
+
+The number of neurons in **W1** and **W2** is a **hyperparameter** chosen by the model designer.
+
+Usually,
+
+```
+LSTM Hidden Units = 256
+
+↓
+
+Dense(W1) = 256 neurons
+
+Dense(W2) = 256 neurons
+```
+
+The reason is simple.
+
+Both the encoder hidden states and decoder hidden state have 256 features.
+
+Projecting both into the same dimension makes comparison easier.
+
+However, this is **not mandatory**.
+
+For example,
+
+```
+Dense(128)
+
+or
+
+Dense(512)
+```
+
+would also work.
+
+The network will learn to transform the hidden states into the chosen feature space.
+
+---
+
+# What do these neurons actually learn?
+
+Like every Artificial Neural Network,
+
+**we decide**
+
+- Number of Dense layers
+- Number of neurons
+
+The network automatically learns
+
+- Weights
+- Biases
+- Feature representations
+
+using Forward Propagation and Backpropagation.
+
+We never manually tell a neuron what feature it should learn.
+
+---
+
+# Summary
+
+```
+Encoder Hidden State
+          │
+      Dense(W1)
+          │
+          ├──────────┐
+          │          │
+          ▼          │
+                 Add ──► tanh() ──► Dense(V) ──► Attention Score
+          ▲          │
+          │          │
+      Dense(W2)      │
+          ▲          │
+          │          │
+Decoder Hidden State
+```
+
+### Responsibilities
+
+- **Dense(W1):** Learns a representation of the Encoder Hidden States.
+- **Dense(W2):** Learns a representation of the Decoder Hidden State.
+- **tanh():** Introduces non-linearity to model complex relationships.
+- **Dense(V):** Produces one Attention Score for each Encoder Hidden State.
+- **Softmax:** Converts Attention Scores into Attention Weights.
+
+---
+
+## Key Takeaway
+
+Bahdanau Attention is a **small Feed Forward Neural Network (ANN)**.
+
+It does **not** learn language directly.
+
+Instead, it learns an **alignment function** that answers the question:
+
+> **"Which encoder hidden state should the decoder focus on while predicting the current target word?"**
 
 # Key Learning
 
